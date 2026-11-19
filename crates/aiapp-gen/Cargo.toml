@@ -12,3 +12,13 @@ serde_json.workspace = true
 thiserror.workspace = true
 # Closed-source Pro generation service contract client (blocking HTTP, rustls without an OpenSSL dependency)
 ureq = { version = "2", default-features = false, features = ["tls", "json"] }
+
+# --- Multi-agent orchestration engine dependencies ---
+async-trait = "0.1"
+chrono = { version = "0.4", features = ["serde"] }
+futures = "0.3"
+glob = "0.3"
+reqwest = { version = "0.12", default-features = false, features = ["json", "stream", "multipart", "rustls-tls", "http2"] }
+tokio = { version = "1", features = ["rt-multi-thread", "macros", "time", "fs", "net", "process", "io-util", "sync"] }
+urlencoding = "2"
+zip = { version = "2", default-features = false, features = ["deflate", "time"] }

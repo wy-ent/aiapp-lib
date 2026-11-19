@@ -119,6 +119,7 @@ pub fn default_category(template: &str) -> String {
         "pomodoro" => "tool".to_string(),
         "memory-game" => "family".to_string(),
         "tv-movies" => "entertainment".to_string(),
+        "audio-sim" => "entertainment".to_string(),
         _ => "tool".to_string(),
     }
 }

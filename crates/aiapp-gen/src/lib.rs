@@ -7,6 +7,7 @@
 //! (`pro/crates/aiapp-gen-pro`), which is not distributed with this open-source repo;
 //! the community edition returns a guidance message for the `openai` backend.
 
+pub mod agent;
 pub mod config;
 pub mod gen_client;
 pub mod manifest;
@@ -15,6 +16,12 @@ pub mod templates;
 
 use std::fs;
 use std::path::{Path, PathBuf};
+
+pub use agent::{
+    import_skill_zip, Agent, AgentConfig, AgentEngine, Capability, MemoryStore, Message, Mode,
+    MsgRole, RateLimitConfig, Registry, Role, Session, Skill, TokenUsage, TurnResult, UsageMeter,
+    UsageStats, Workflow,
+};
 
 pub use config::{Backend, GenConfig};
 pub use gen_client::{
@@ -40,8 +47,11 @@ pub enum GenError {
 /// Call the currently configured AI backend based on the description and return the generated MoonBit source.
 /// When the `mock` backend is used with a template specified, the template source is returned.
 pub fn generate_source(desc: &str, config: &GenConfig, template: &str) -> Result<String, GenError> {
-    // If a template is specified and the mock backend is used, prefer the template source
-    if config.backend == Backend::Mock && !template.is_empty() {
+    // Mock backend: only return template code when the user **explicitly** chose a
+    // non-minimal template (todo / pomodoro / …).  For "minimal" (the default) or
+    // empty, fall through to `mock::generate` which returns an error telling the
+    // user to configure an AI backend — we never silently produce Hello World.
+    if config.backend == Backend::Mock && !template.is_empty() && template != "minimal" {
         if let Some(source) = templates::get_template_source(template, desc) {
             return Ok(source);
         }
@@ -67,7 +77,7 @@ pub fn generate_source_with_prompt(
     template: &str,
     override_prompt: &str,
 ) -> Result<String, GenError> {
-    if config.backend == Backend::Mock && !template.is_empty() {
+    if config.backend == Backend::Mock && !template.is_empty() && template != "minimal" {
         if let Some(source) = templates::get_template_source(template, desc) {
             return Ok(source);
         }
